@@ -1,21 +1,23 @@
 package tetris;
 
-import java.awt.*;
-import javax.swing.*;
 import tetris.Shape.Tetrominoes;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class ShapePanel extends JPanel {
-    private final int BOARD_WIDTH = 7;
-    private final int BOARD_HEIGHT = 7;
+    private final int BOARD_WIDTH = 5;
+    private final int BOARD_HEIGHT = 6;
 
     private Shape shape;
     private int currentX = 0;
     private int currentY = 0;
-    private Shape.Tetrominoes[] board;
+    private Tetrominoes[] board;
 
     public ShapePanel() {
         setOpaque(false);
-//        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
+        setSize(200, 140);
+        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
         board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
         initBoard();
     }
@@ -30,7 +32,7 @@ public class ShapePanel extends JPanel {
 
     private void initBoard() {
         for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++) {
-            board[i] = Shape.Tetrominoes.EmptyShape;
+            board[i] = Tetrominoes.EmptyShape;
         }
     }
 
@@ -52,7 +54,7 @@ public class ShapePanel extends JPanel {
         int boardTop = (int) size.getHeight() - BOARD_HEIGHT * cellHeight();
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
-                Shape.Tetrominoes shape = shapeAt(j, BOARD_HEIGHT - i - 1);
+                Tetrominoes shape = shapeAt(j, BOARD_HEIGHT - i - 1);
                 drawSquare(g,
                            j * cellWidth(),
                            boardTop + i * cellHeight(),
@@ -60,7 +62,7 @@ public class ShapePanel extends JPanel {
             }
         }
 
-        if (shape.getShapeName() == Shape.Tetrominoes.EmptyShape) {
+        if (shape.getShapeName() == Tetrominoes.EmptyShape) {
             return;
         }
         for (int i = 0; i < 4; i++) {

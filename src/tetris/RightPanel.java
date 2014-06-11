@@ -1,6 +1,5 @@
 package tetris;
 
-import javax.accessibility.AccessibleComponent;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -22,11 +21,11 @@ public class RightPanel extends JPanel {
         this.parent = parent;
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//        add(createStatusPanel(), BorderLayout.BEFORE_FIRST_LINE);
-//        add(new JSeparator());
+        setLayout(new BorderLayout());
+        add(createStatusPanel(), BorderLayout.NORTH);
+        add(new JSeparator());
         add(createNextShapePanel(), BorderLayout.CENTER);
-//        add(new JSeparator());
+        add(new JSeparator());
         add(createButtonsPanel(), BorderLayout.SOUTH);
     }
 
@@ -49,33 +48,38 @@ public class RightPanel extends JPanel {
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Timer timer = parent.board.getTimer();
-                if (timer.isRunning()) {
-//                    parent.board.pause();
-                    int res = JOptionPane.showConfirmDialog(null,
-                          "Are you sure to restart ?",
-                          "RESTART",
-                          JOptionPane.YES_NO_OPTION,
-                          JOptionPane.QUESTION_MESSAGE);
-                    if (res == JOptionPane.NO_OPTION) {
-                        parent.board.requestFocus(true);
-//                        parent.board.pause();
-                        return;
-                    }
-//                    parent.board.pause();
+                boolean wasPaused = true;
+                if (parent.board.getTimer().isRunning()) {
+                    parent.board.pause();
+                    wasPaused = false;
                 }
-                parent.board.requestFocus(true);
-                parent.board.initBoard();
-                timer.start();
+                int res = JOptionPane.showConfirmDialog(null,
+                      "Are you sure to restart ?",
+                      "RESTART",
+                      JOptionPane.YES_NO_OPTION,
+                      JOptionPane.QUESTION_MESSAGE);
+                if (res == JOptionPane.NO_OPTION) {
+                    parent.board.requestFocus(true);
+                    if (!wasPaused) {
+                        parent.board.pause();
+                    }
+                } else {
+                    parent.board.restart();
+                    parent.board.requestFocus(true);
+                }
             }
         });
 
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                parent.board.pause();
+                boolean wasPaused = true;
+                if (parent.board.getTimer().isRunning()) {
+                    parent.board.pause();
+                    wasPaused = false;
+                }
                 int res = JOptionPane.showConfirmDialog(null,
-                        "Are you sure to exit ?\nProgress will not be saving!",
+                        "Are you sure to exit ?",
                         "EXIT",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
@@ -83,7 +87,9 @@ public class RightPanel extends JPanel {
                     parent.board.getTimer().stop();
                     parent.dispose();
                 } else {
-//                    parent.board.pause();
+                    if (!wasPaused) {
+                        parent.board.pause();
+                    }
                     parent.board.requestFocus(true);
                 }
             }
@@ -115,9 +121,10 @@ public class RightPanel extends JPanel {
     }
 
     private Component createStatusPanel() {
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.setOpaque(false);
-        statusPanel.add(statusBar);
+        statusPanel.add(new JLabel(statusString), BorderLayout.LINE_END);
+        statusPanel.add(statusBar, BorderLayout.LINE_END);
         return statusPanel;
     }
 

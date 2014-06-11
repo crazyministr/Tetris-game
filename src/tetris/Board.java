@@ -2,12 +2,12 @@ package tetris;
 
 import tetris.Shape.Tetrominoes;
 
-import java.awt.*;
 import javax.swing.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyAdapter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Board extends JPanel implements ActionListener {
     public static final int BOARD_WIDTH = 10;
@@ -32,6 +32,7 @@ public class Board extends JPanel implements ActionListener {
         this.parent = parent;
         setFocusable(true);
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+        addKeyListener(new TAdapter());
 
         currentShape = new Shape();
         currentShape.setRandomShape();
@@ -51,7 +52,7 @@ public class Board extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (isFallingFinished) {
             isFallingFinished = false;
-            newPiece();
+            newShapes();
         } else {
             oneLineDown();
         }
@@ -71,18 +72,27 @@ public class Board extends JPanel implements ActionListener {
 
     public void start() {
         isStarted = true;
+        isPaused = false;
         isFallingFinished = false;
         cntRemovedLines = 0;
 
         points = parent.rightPanel.getPoints();
         statusBar = parent.rightPanel.getStatusBar();
-        statusBar.setText("status: started");
+        points.setText("0");
+        statusBar.setText("started");
 
         initBoard();
-        addKeyListener(new TAdapter());
         timer = new Timer(400, this);
         timer.start();
         tryMove(currentShape, currentX, currentY);
+    }
+
+    public void restart() {
+        timer.stop();
+        initBoard();
+        newShapes();
+        repaint();
+        start();
     }
 
     public void pause() {
@@ -92,10 +102,10 @@ public class Board extends JPanel implements ActionListener {
         isPaused = !isPaused;
         if (isPaused) {
             timer.stop();
-            statusBar.setText("status: paused");
+            statusBar.setText("paused");
         } else {
             timer.start();
-            statusBar.setText("status: started");
+            statusBar.setText("started");
         }
         repaint();
     }
@@ -131,29 +141,45 @@ public class Board extends JPanel implements ActionListener {
         }
         removeFullLines();
         if (!isFallingFinished) {
-            newPiece();
+            newShapes();
         }
     }
 
-    private void newPiece() {
+    private void newShapes() {
+        if (nextShape == null) {
+            nextShape = new Shape();
+            nextShape.setRandomShape();
+        }
         currentShape = nextShape;
         currentX = BOARD_WIDTH / 2 + 1;
         currentY = BOARD_HEIGHT - 1 + currentShape.minY();
         nextShape = new Shape();
         nextShape.setRandomShape();
         parent.rightPanel.shapePanel.setShape(nextShape);
-        if (!tryMove(currentShape, currentX, currentY)) {
+        if (isStarted && !tryMove(currentShape, currentX, currentY)) {
             currentShape.setShape(Tetrominoes.EmptyShape);
             timer.stop();
             isStarted = false;
-            statusBar.setText("status: game over");
+            statusBar.setText("game over");
+            String res = JOptionPane.showInputDialog(null,
+                    "Enter your name",
+                    "GAME OVER",
+                    JOptionPane.OK_CANCEL_OPTION);
+            if (res != null) {
+                saveNewRecord(res, points.getText());
+            }
         }
     }
 
-    private boolean tryMove(Shape newPiece, int newX, int newY) {
+    private void saveNewRecord(String name, String points) {
+        System.out.println("SAVE: " + name + " " + points);
+        // TODO: save to file records/records.txt
+    }
+
+    private boolean tryMove(Shape newShape, int newX, int newY) {
         for (int i = 0; i < 4; i++) {
-            int x = newX + newPiece.getX(i);
-            int y = newY - newPiece.getY(i);
+            int x = newX + newShape.getX(i);
+            int y = newY - newShape.getY(i);
             if (x < 0 || x >= BOARD_WIDTH || y < 0 || y >= BOARD_HEIGHT) {
                 return false;
             }
@@ -161,7 +187,7 @@ public class Board extends JPanel implements ActionListener {
                 return false;
             }
         }
-        currentShape = newPiece;
+        currentShape = newShape;
         currentX = newX;
         currentY = newY;
         repaint();
@@ -241,15 +267,15 @@ public class Board extends JPanel implements ActionListener {
                 System.out.println("KeyAdapter: " + isStarted + " " + currentShape.getShapeName());
                 return;
             }
-            int keycode = e.getKeyCode();
-            if (keycode == 'p' || keycode == 'P') {
+            int keyCode = e.getKeyCode();
+            if (keyCode == 'p' || keyCode == 'P') {
                 pause();
                 return;
             }
             if (isPaused) {
                 return;
             }
-            switch (keycode) {
+            switch (keyCode) {
                 case KeyEvent.VK_LEFT:
                     tryMove(currentShape, currentX - 1, currentY);
                     break;
