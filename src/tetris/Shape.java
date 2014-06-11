@@ -7,7 +7,8 @@ import java.lang.Math;
 
 public class Shape {
     private int coords[][];
-    private Tetrominoes pieceShape;
+    private Tetrominoes currentShape;
+    private Tetrominoes nextShape;
 
     enum Tetrominoes {
         NoShape, ZShape, SShape, LineShape, TShape, SquareShape, LShape, MirroredLShape
@@ -18,7 +19,7 @@ public class Shape {
         setShape(Tetrominoes.NoShape);
     }
 
-    static Color[] colors = {
+    final static Color[] colors = {
             new Color(0x000000),
             new Color(0x00FF00),
             new Color(0x78068D),
@@ -46,7 +47,7 @@ public class Shape {
                 coords[i][j] = coordsTable[shape.ordinal()][i][j];
             }
         }
-        pieceShape = shape;
+        currentShape = shape;
     }
 
     private void setX(int index, int x) {
@@ -66,7 +67,11 @@ public class Shape {
     }
 
     public Tetrominoes getShape() {
-        return pieceShape;
+        return currentShape;
+    }
+
+    public Tetrominoes getNextShape() {
+        return nextShape;
     }
 
     public void setRandomShape() {
@@ -84,11 +89,11 @@ public class Shape {
     }
 
     public Shape rotateLeft() {
-        if (pieceShape == Tetrominoes.SquareShape) {
+        if (currentShape == Tetrominoes.SquareShape) {
             return this;
         }
         Shape result = new Shape();
-        result.pieceShape = pieceShape;
+        result.currentShape = currentShape;
         for (int i = 0; i < 4; ++i) {
             result.setX(i, y(i));
             result.setY(i, -x(i));

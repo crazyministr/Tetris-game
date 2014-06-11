@@ -7,6 +7,10 @@ import java.awt.event.ActionListener;
 
 public class Tetris extends JFrame {
     JLabel statusBar;
+    final static int WIDTH_WINDOW = 400;
+    final static int HEIGHT_WINDOW = 400;
+    public Board board;
+    public RightPanel rightPanel;
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -20,17 +24,18 @@ public class Tetris extends JFrame {
     }
 
     public Tetris() {
-        createMenuBar();
-        statusBar = new JLabel(" 0");
-        Board board = new Board(this);
-        add(board, BorderLayout.CENTER);
+//        createMenuBar();
+//        statusBar = new JLabel(" 0");
+        setLayout(new GridLayout(1, 2, 0, 0));
+//        add(statusBar);
 
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(statusBar, BorderLayout.NORTH);
+        rightPanel = new RightPanel(this);
+        board = new Board(this);
+        add(board);
+        add(rightPanel);
 
-        add(leftPanel, BorderLayout.EAST);
         board.start();
-        setSize(210, 400);
+        setSize(WIDTH_WINDOW, HEIGHT_WINDOW);
         setTitle("Tetris");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }

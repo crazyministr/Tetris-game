@@ -11,6 +11,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class Board extends JPanel implements ActionListener {
     final int BoardWidth = 13;
@@ -32,13 +33,16 @@ public class Board extends JPanel implements ActionListener {
         curPiece = new Shape();
         timer = new Timer(400, this);
         timer.start();
-        statusBar = parent.getStatusBar();
+        statusBar = parent.rightPanel.getStatusBar();
         board = new Tetrominoes[BoardWidth * BoardHeight];
         addKeyListener(new TAdapter());
         clearBoard();
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
+        setFocusable(true);
+        System.out.println(new Random().nextInt(13));
         if (isFallingFinished) {
             isFallingFinished = false;
             newPiece();
@@ -48,13 +52,11 @@ public class Board extends JPanel implements ActionListener {
     }
 
     int squareWidth() {
-//        return (int) getSize().getWidth() / BoardWidth;
-        return 200 / BoardWidth;
+        return (int) getSize().getWidth() / BoardWidth;
     }
 
     int squareHeight() {
-//        return (int) getSize().getHeight() / BoardHeight;
-        return 400 / BoardHeight;
+        return (int) getSize().getHeight() / BoardHeight;
     }
 
     Tetrominoes shapeAt(int x, int y) {
@@ -107,8 +109,8 @@ public class Board extends JPanel implements ActionListener {
                 int x = curX + curPiece.x(i);
                 int y = curY - curPiece.y(i);
                 drawSquare(g, x * squareWidth(),
-                        boardTop + (BoardHeight - y - 1) * squareHeight(),
-                        curPiece.getShape());
+                           boardTop + (BoardHeight - y - 1) * squareHeight(),
+                           curPiece.getShape());
             }
         }
     }
@@ -140,7 +142,7 @@ public class Board extends JPanel implements ActionListener {
         for (int i = 0; i < 4; ++i) {
             int x = curX + curPiece.x(i);
             int y = curY - curPiece.y(i);
-            board[(y * BoardWidth) + x] = curPiece.getShape();
+            board[y * BoardWidth + x] = curPiece.getShape();
         }
         removeFullLines();
         if (!isFallingFinished) {
