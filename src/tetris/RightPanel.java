@@ -27,19 +27,19 @@ public class RightPanel extends JPanel {
     }
 
     private Component createButtonsPanel() {
-        JPanel buttonsPanel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JPanel buttonsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
         buttonsPanel.setOpaque(false);
 
         JButton restartButton = new JButton("restart");
         JButton exitButton = new JButton("exit");
-        JButton showRecordsButton = new JButton("records");
         JButton aboutButton = new JButton("about");
 
+        buttonsPanel.add(new JLabel("Best result: "));
+        buttonsPanel.add(getBestResult());
         buttonsPanel.add(new JLabel(pointsString));
         buttonsPanel.add(points);
         buttonsPanel.add(restartButton);
         buttonsPanel.add(exitButton);
-        buttonsPanel.add(showRecordsButton);
         buttonsPanel.add(aboutButton);
 
         restartButton.addActionListener(new ActionListener() {
@@ -92,23 +92,22 @@ public class RightPanel extends JPanel {
             }
         });
 
-        showRecordsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // TODO: show new frame with records from file record.txt
-                parent.board.requestFocus(true);
-            }
-        });
-
         aboutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: create new frame with info about author
+                JOptionPane.showMessageDialog(null,
+                        "Malashenkov Anton",
+                        "ABOUT AUTHOR",
+                        JOptionPane.INFORMATION_MESSAGE);
                 parent.board.requestFocus(true);
             }
         });
 
         return buttonsPanel;
+    }
+
+    private JLabel getBestResult() {
+        return new JLabel("DashKa: 2121 points");
     }
 
     private Component createNextShapePanel() {

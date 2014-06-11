@@ -17,7 +17,7 @@ public class ShapePanel extends JPanel {
     public ShapePanel() {
         setOpaque(false);
         setSize(113, 113);
-        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
+//        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
         board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
         initBoard();
     }
