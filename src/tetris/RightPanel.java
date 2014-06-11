@@ -20,12 +20,9 @@ public class RightPanel extends JPanel {
     public RightPanel(final Tetris parent) {
         this.parent = parent;
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
-
         setLayout(new BorderLayout());
         add(createStatusPanel(), BorderLayout.NORTH);
-        add(new JSeparator());
         add(createNextShapePanel(), BorderLayout.CENTER);
-        add(new JSeparator());
         add(createButtonsPanel(), BorderLayout.SOUTH);
     }
 
@@ -121,10 +118,10 @@ public class RightPanel extends JPanel {
     }
 
     private Component createStatusPanel() {
-        JPanel statusPanel = new JPanel(new BorderLayout());
+        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         statusPanel.setOpaque(false);
-        statusPanel.add(new JLabel(statusString), BorderLayout.LINE_END);
-        statusPanel.add(statusBar, BorderLayout.LINE_END);
+        statusPanel.add(new JLabel(statusString));
+        statusPanel.add(statusBar);
         return statusPanel;
     }
 

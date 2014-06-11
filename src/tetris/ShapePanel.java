@@ -16,7 +16,7 @@ public class ShapePanel extends JPanel {
 
     public ShapePanel() {
         setOpaque(false);
-        setSize(200, 140);
+        setSize(113, 113);
         setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
         board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
         initBoard();
@@ -37,11 +37,11 @@ public class ShapePanel extends JPanel {
     }
 
     int cellWidth() {
-        return (int) getSize().getWidth() / BOARD_WIDTH; // 198 / 6 = 33
+        return (int) getSize().getWidth() / BOARD_WIDTH;
     }
 
     int cellHeight() {
-        return (int) getSize().getHeight() / BOARD_HEIGHT; // 66 / 6 = 11
+        return (int) getSize().getHeight() / BOARD_HEIGHT;
     }
 
     Tetrominoes shapeAt(int x, int y) {

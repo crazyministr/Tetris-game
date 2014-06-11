@@ -10,8 +10,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class Board extends JPanel implements ActionListener {
-    public static final int BOARD_WIDTH = 10;
-    public static final int BOARD_HEIGHT = 20;
+    public static final int BOARD_WIDTH = 15;
+    public static final int BOARD_HEIGHT = 25;
 
     public Shape currentShape;
     public Shape nextShape;
@@ -59,10 +59,12 @@ public class Board extends JPanel implements ActionListener {
     }
 
     int cellWidth() {
+        System.out.println("width: " + getSize().getWidth());
         return (int) getSize().getWidth() / BOARD_WIDTH;
     }
 
     int cellHeight() {
+        System.out.println("height: " + getSize().getHeight());
         return (int) getSize().getHeight() / BOARD_HEIGHT;
     }
 

@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Tetris extends JFrame {
-    final static int WIDTH_WINDOW = 400;
-    final static int HEIGHT_WINDOW = 400;
+    final static int WIDTH_WINDOW = 600;
+    final static int HEIGHT_WINDOW = 500;
     public Board board;
     public RightPanel rightPanel;
 
-    private String msg = "p(P) - pause\nSpace - shape drop down\n";
+    private String msg = "p(P) - pause\nSpace - shape drop down\nololo atata";
 
     public Tetris() {
         JOptionPane.showMessageDialog(null, msg, "HOW TO PLAY", JOptionPane.INFORMATION_MESSAGE);
@@ -20,8 +20,8 @@ public class Tetris extends JFrame {
         add(rightPanel);
         board.start();
 
-        setSize(WIDTH_WINDOW, HEIGHT_WINDOW);
         setTitle("Tetris");
+        setSize(WIDTH_WINDOW, HEIGHT_WINDOW);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
