@@ -2,47 +2,53 @@ package tetris;
 
 import tetris.Shape.Tetrominoes;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
 
 public class Board extends JPanel implements ActionListener {
-    final int BoardWidth = 13;
-    final int BoardHeight = 25;
+    public static final int BOARD_WIDTH = 10;
+    public static final int BOARD_HEIGHT = 20;
 
-    Timer timer;
-    boolean isFallingFinished = false;
-    boolean isStarted = false;
-    boolean isPaused = false;
-    int numLinesRemoved = 0;
-    int curX = 0;
-    int curY = 0;
-    JLabel statusBar;
-    Shape curPiece;
-    Tetrominoes[] board;
+    public Shape currentShape;
+    public Shape nextShape;
+
+    private Timer timer;
+    private JLabel points;
+    private int currentX = 0;
+    private int currentY = 0;
+    private JLabel statusBar;
+    private final Tetris parent;
+    private Tetrominoes[] board;
+    private int cntRemovedLines = 0;
+    private boolean isPaused = false;
+    private boolean isStarted = false;
+    private boolean isFallingFinished = false;
 
     public Board(Tetris parent) {
+        this.parent = parent;
         setFocusable(true);
-        curPiece = new Shape();
-        timer = new Timer(400, this);
-        timer.start();
-        statusBar = parent.rightPanel.getStatusBar();
-        board = new Tetrominoes[BoardWidth * BoardHeight];
-        addKeyListener(new TAdapter());
-        clearBoard();
+        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+
+        currentShape = new Shape();
+        currentShape.setRandomShape();
+        currentX = BOARD_WIDTH / 2 + 1;
+        currentY = BOARD_HEIGHT - 1 + currentShape.minY();
+        nextShape = new Shape();
+        nextShape.setRandomShape();
+
+        board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
+    }
+
+    public Timer getTimer() {
+        return timer;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        setFocusable(true);
-        System.out.println(new Random().nextInt(13));
         if (isFallingFinished) {
             isFallingFinished = false;
             newPiece();
@@ -51,98 +57,77 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
-    int squareWidth() {
-        return (int) getSize().getWidth() / BoardWidth;
+    int cellWidth() {
+        return (int) getSize().getWidth() / BOARD_WIDTH;
     }
 
-    int squareHeight() {
-        return (int) getSize().getHeight() / BoardHeight;
+    int cellHeight() {
+        return (int) getSize().getHeight() / BOARD_HEIGHT;
     }
 
     Tetrominoes shapeAt(int x, int y) {
-        return board[(y * BoardWidth) + x];
+        return board[(y * BOARD_WIDTH) + x];
     }
 
     public void start() {
-        if (isPaused) {
-            return;
-        }
         isStarted = true;
         isFallingFinished = false;
-        numLinesRemoved = 0;
-        clearBoard();
-        newPiece();
+        cntRemovedLines = 0;
+
+        points = parent.rightPanel.getPoints();
+        statusBar = parent.rightPanel.getStatusBar();
+        statusBar.setText("status: started");
+
+        initBoard();
+        addKeyListener(new TAdapter());
+        timer = new Timer(400, this);
         timer.start();
+        tryMove(currentShape, currentX, currentY);
     }
 
-    private void pause() {
+    public void pause() {
         if (!isStarted) {
             return;
         }
         isPaused = !isPaused;
         if (isPaused) {
             timer.stop();
-            statusBar.setText("paused");
+            statusBar.setText("status: paused");
         } else {
             timer.start();
-            statusBar.setText(String.valueOf(numLinesRemoved));
+            statusBar.setText("status: started");
         }
         repaint();
     }
 
-    public void paint(Graphics g) {
-        super.paint(g);
-
-        Dimension size = getSize();
-        int boardTop = (int) size.getHeight() - BoardHeight * squareHeight();
-        for (int i = 0; i < BoardHeight; ++i) {
-            for (int j = 0; j < BoardWidth; ++j) {
-                Tetrominoes shape = shapeAt(j, BoardHeight - i - 1);
-                if (shape != Tetrominoes.NoShape) {
-                    drawSquare(g, j * squareWidth(), boardTop + i * squareHeight(), shape);
-                }
-            }
-        }
-
-        if (curPiece.getShape() != Tetrominoes.NoShape) {
-            for (int i = 0; i < 4; ++i) {
-                int x = curX + curPiece.x(i);
-                int y = curY - curPiece.y(i);
-                drawSquare(g, x * squareWidth(),
-                           boardTop + (BoardHeight - y - 1) * squareHeight(),
-                           curPiece.getShape());
-            }
-        }
-    }
-
     private void dropDown() {
-        int newY = curY;
+        int newY = currentY;
         while (newY > 0) {
-            if (!tryMove(curPiece, curX, newY - 1)) {
+            if (!tryMove(currentShape, currentX, newY - 1)) {
                 break;
             }
             --newY;
         }
-        pieceDropped();
+        shapeDropped();
     }
 
     private void oneLineDown() {
-        if (!tryMove(curPiece, curX, curY - 1)) {
-            pieceDropped();
+        if (!tryMove(currentShape, currentX, currentY - 1)) {
+            shapeDropped();
         }
     }
 
-    private void clearBoard() {
-        for (int i = 0; i < BoardHeight * BoardWidth; ++i) {
-            board[i] = Tetrominoes.NoShape;
+    public void initBoard() {
+        for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++) {
+            board[i] = Tetrominoes.EmptyShape;
         }
     }
 
-    private void pieceDropped() {
-        for (int i = 0; i < 4; ++i) {
-            int x = curX + curPiece.x(i);
-            int y = curY - curPiece.y(i);
-            board[y * BoardWidth + x] = curPiece.getShape();
+    private void shapeDropped() {
+        for (int i = 0; i < 4; i++) {
+            int x = currentX + currentShape.getX(i);
+            int y = currentY - currentShape.getY(i);
+            board[y * BOARD_WIDTH + x] = currentShape.getShapeName();
         }
         removeFullLines();
         if (!isFallingFinished) {
@@ -151,81 +136,109 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void newPiece() {
-        curPiece.setRandomShape();
-        curX = BoardWidth / 2 + 1;
-        curY = BoardHeight - 1 + curPiece.minY();
-        if (!tryMove(curPiece, curX, curY)) {
-            curPiece.setShape(Tetrominoes.NoShape);
+        currentShape = nextShape;
+        currentX = BOARD_WIDTH / 2 + 1;
+        currentY = BOARD_HEIGHT - 1 + currentShape.minY();
+        nextShape = new Shape();
+        nextShape.setRandomShape();
+        parent.rightPanel.shapePanel.setShape(nextShape);
+        if (!tryMove(currentShape, currentX, currentY)) {
+            currentShape.setShape(Tetrominoes.EmptyShape);
             timer.stop();
             isStarted = false;
-            statusBar.setText("game over");
+            statusBar.setText("status: game over");
         }
     }
 
     private boolean tryMove(Shape newPiece, int newX, int newY) {
-        for (int i = 0; i < 4; ++i) {
-            int x = newX + newPiece.x(i);
-            int y = newY - newPiece.y(i);
-            if (x < 0 || x >= BoardWidth || y < 0 || y >= BoardHeight) {
+        for (int i = 0; i < 4; i++) {
+            int x = newX + newPiece.getX(i);
+            int y = newY - newPiece.getY(i);
+            if (x < 0 || x >= BOARD_WIDTH || y < 0 || y >= BOARD_HEIGHT) {
                 return false;
             }
-            if (shapeAt(x, y) != Tetrominoes.NoShape) {
+            if (shapeAt(x, y) != Tetrominoes.EmptyShape) {
                 return false;
             }
         }
-        curPiece = newPiece;
-        curX = newX;
-        curY = newY;
+        currentShape = newPiece;
+        currentX = newX;
+        currentY = newY;
         repaint();
         return true;
     }
 
     private void removeFullLines() {
         int numFullLines = 0;
-        for (int i = BoardHeight - 1; i >= 0; --i) {
+        for (int i = BOARD_HEIGHT - 1; i >= 0; --i) {
             boolean lineIsFull = true;
-            for (int j = 0; j < BoardWidth; ++j) {
-                if (shapeAt(j, i) == Tetrominoes.NoShape) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                if (shapeAt(j, i) == Tetrominoes.EmptyShape) {
                     lineIsFull = false;
                     break;
                 }
             }
             if (lineIsFull) {
                 ++numFullLines;
-                for (int k = i; k < BoardHeight - 1; ++k) {
-                    for (int j = 0; j < BoardWidth; ++j) {
-                        board[(k * BoardWidth) + j] = shapeAt(j, k + 1);
+                for (int k = i; k < BOARD_HEIGHT - 1; k++) {
+                    for (int j = 0; j < BOARD_WIDTH; j++) {
+                        board[(k * BOARD_WIDTH) + j] = shapeAt(j, k + 1);
                     }
                 }
             }
         }
         if (numFullLines > 0) {
-            numLinesRemoved += numFullLines;
-            statusBar.setText(String.valueOf(numLinesRemoved));
             isFallingFinished = true;
-            curPiece.setShape(Tetrominoes.NoShape);
+            cntRemovedLines += numFullLines;
+            currentShape.setShape(Tetrominoes.EmptyShape);
+            points.setText(String.valueOf(cntRemovedLines));
             repaint();
         }
     }
 
-    private void drawSquare(Graphics g, int x, int y, Tetrominoes shape) {
-        Color color = Shape.colors[shape.ordinal()];
+    public void paint(Graphics g) {
+        super.paint(g);
+        Dimension size = getSize();
+        int boardTop = (int) size.getHeight() - BOARD_HEIGHT * cellHeight();
+        for (int i = 0; i < BOARD_HEIGHT; i++) {
+            for (int j = 0; j < BOARD_WIDTH; j++) {
+                Tetrominoes shapeName = shapeAt(j, BOARD_HEIGHT - i - 1);
+                drawSquare(g,
+                           j * cellWidth(),
+                           boardTop + i * cellHeight(),
+                           Shape.colors[shapeName.ordinal()]);
+            }
+        }
 
+        if (currentShape.getShapeName() != Tetrominoes.EmptyShape) {
+            for (int i = 0; i < 4; i++) {
+                int x = currentX + currentShape.getX(i);
+                int y = currentY - currentShape.getY(i);
+                drawSquare(g,
+                           x * cellWidth(),
+                           boardTop + (BOARD_HEIGHT - y - 1) * cellHeight(),
+                           Shape.colors[currentShape.getShapeName().ordinal()]);
+            }
+        }
+    }
+
+    public void drawSquare(Graphics g, int x, int y, Color color) {
         g.setColor(color);
-        g.fillRect(x + 1, y + 1, squareWidth() - 2, squareHeight() - 2);
+        g.fillRect(x + 1, y + 1, cellWidth() - 2, cellHeight() - 2);
 
         g.setColor(color.brighter());
-        g.drawLine(x, y + squareHeight() - 1, x, y);
-        g.drawLine(x, y, x + squareWidth() - 1, y);
+        g.drawLine(x, y + cellHeight() - 1, x, y);
+        g.drawLine(x, y, x + cellWidth() - 1, y);
 
         g.setColor(color.darker());
-        g.drawLine(x + 1, y + squareHeight() - 1, x + squareWidth() - 1, y + squareHeight() - 1);
-        g.drawLine(x + squareWidth() - 1, y + squareHeight() - 1, x + squareWidth() - 1, y + 1);
+        g.drawLine(x + 1, y + cellHeight() - 1, x + cellWidth() - 1, y + cellHeight() - 1);
+        g.drawLine(x + cellWidth() - 1, y + cellHeight() - 1, x + cellWidth() - 1, y + 1);
     }
 
     class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
-            if (!isStarted || curPiece.getShape() == Tetrominoes.NoShape) {
+            if (!isStarted || currentShape.getShapeName() == Tetrominoes.EmptyShape) {
+                System.out.println("KeyAdapter: " + isStarted + " " + currentShape.getShapeName());
                 return;
             }
             int keycode = e.getKeyCode();
@@ -238,13 +251,13 @@ public class Board extends JPanel implements ActionListener {
             }
             switch (keycode) {
                 case KeyEvent.VK_LEFT:
-                    tryMove(curPiece, curX - 1, curY);
+                    tryMove(currentShape, currentX - 1, currentY);
                     break;
                 case KeyEvent.VK_RIGHT:
-                    tryMove(curPiece, curX + 1, curY);
+                    tryMove(currentShape, currentX + 1, currentY);
                     break;
                 case KeyEvent.VK_UP:
-                    tryMove(curPiece.rotateLeft(), curX, curY);
+                    tryMove(currentShape.rotateLeft(), currentX, currentY);
                     break;
                 case KeyEvent.VK_DOWN:
                     oneLineDown();

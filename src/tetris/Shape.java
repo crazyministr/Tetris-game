@@ -1,26 +1,28 @@
 package tetris;
 
-import javax.smartcardio.TerminalFactory;
 import java.awt.*;
-import java.util.Random;
 import java.lang.Math;
+import java.util.Random;
 
 public class Shape {
     private int coords[][];
-    private Tetrominoes currentShape;
-    private Tetrominoes nextShape;
+    private Tetrominoes shapeName;
 
     enum Tetrominoes {
-        NoShape, ZShape, SShape, LineShape, TShape, SquareShape, LShape, MirroredLShape
+        EmptyShape, ZShape, SShape, LineShape, TShape, SquareShape, LShape, ReversedLShape
     }
 
     public Shape() {
-        coords = new int[4][2];
-        setShape(Tetrominoes.NoShape);
+        this(Tetrominoes.EmptyShape);
     }
 
-    final static Color[] colors = {
-            new Color(0x000000),
+    public Shape(Tetrominoes shapeName) {
+        coords = new int[4][2];
+        setShape(shapeName);
+    }
+
+    public final static Color[] colors = {
+            new Color(0xD0D0D0),
             new Color(0x00FF00),
             new Color(0x78068D),
             new Color(0xFF0000),
@@ -30,24 +32,24 @@ public class Shape {
             new Color(0xEC6600),
     };
 
-    public void setShape(Tetrominoes shape) {
-        int[][][] coordsTable = new int[][][]{
-            {{0, 0}, {0, 0}, {0, 0}, {0, 0}},
-            {{0, -1}, {0, 0}, {-1, 0}, {-1, 1}}, // S
-            {{0, -1}, {0, 0}, {1, 0}, {1, 1}},   // Z
+    public final static int[][][] coordsTable = new int[][][] {
+            {{0, 0}, {0, 0}, {0, 0}, {0, 0}},    // Empty
+            {{0, -1}, {0, 0}, {-1, 0}, {-1, 1}}, // Z
+            {{0, -1}, {0, 0}, {1, 0}, {1, 1}},   // S
             {{0, -1}, {0, 0}, {0, 1}, {0, 2}},   // Line
             {{-1, 0}, {0, 0}, {1, 0}, {0, 1}},   // T
             {{0, 0}, {1, 0}, {0, 1}, {1, 1}},    // Square
             {{1, -1}, {0, -1}, {0, 0}, {0, 1}},  // L
-            {{-1, -1}, {0, -1}, {0, 0}, {0, 1}},  // reverse L
-        };
+            {{-1, -1}, {0, -1}, {0, 0}, {0, 1}}, // reversed L
+    };
 
+    public void setShape(Tetrominoes shapeName) {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 2; ++j) {
-                coords[i][j] = coordsTable[shape.ordinal()][i][j];
+                coords[i][j] = coordsTable[shapeName.ordinal()][i][j];
             }
         }
-        currentShape = shape;
+        this.shapeName = shapeName;
     }
 
     private void setX(int index, int x) {
@@ -58,26 +60,22 @@ public class Shape {
         coords[index][1] = y;
     }
 
-    public int x(int index) {
+    public int getX(int index) {
         return coords[index][0];
     }
 
-    public int y(int index) {
+    public int getY(int index) {
         return coords[index][1];
     }
 
-    public Tetrominoes getShape() {
-        return currentShape;
-    }
-
-    public Tetrominoes getNextShape() {
-        return nextShape;
+    public Tetrominoes getShapeName() {
+        return shapeName;
     }
 
     public void setRandomShape() {
-        Tetrominoes[] values = Tetrominoes.values();
+        Tetrominoes[] names = Tetrominoes.values();
         int rnd = Math.abs(new Random().nextInt());
-        setShape(values[rnd % (values.length - 1) + 1]);
+        setShape(names[rnd % (names.length - 1) + 1]);
     }
 
     public int minY() {
@@ -89,14 +87,13 @@ public class Shape {
     }
 
     public Shape rotateLeft() {
-        if (currentShape == Tetrominoes.SquareShape) {
+        if (shapeName == Tetrominoes.SquareShape) {
             return this;
         }
-        Shape result = new Shape();
-        result.currentShape = currentShape;
-        for (int i = 0; i < 4; ++i) {
-            result.setX(i, y(i));
-            result.setY(i, -x(i));
+        Shape result = new Shape(shapeName);
+        for (int i = 0; i < 4; i++) {
+            result.setX(i, getY(i));
+            result.setY(i, -getX(i));
         }
         return result;
     }
