@@ -9,10 +9,10 @@ public class Tetris extends JFrame {
     public Board board;
     public RightPanel rightPanel;
 
-    private String msg = "hfksjdhfksf sfh ksdjfhk jsdfh jsdhfkjsdh fsdh fksd fshdf ksdhjfh sdf";
+    private String msg = "p(P) - pause\nSpace - shape drop down\n";
 
     public Tetris() {
-        JOptionPane.showConfirmDialog(null, msg, "HOW TO PLAY", JOptionPane.YES_OPTION);
+        JOptionPane.showMessageDialog(null, msg, "HOW TO PLAY", JOptionPane.INFORMATION_MESSAGE);
         setLayout(new GridLayout(1, 2, 0, 0));
         board = new Board(this);
         rightPanel = new RightPanel(this);
