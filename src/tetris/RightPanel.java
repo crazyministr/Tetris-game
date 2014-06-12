@@ -3,23 +3,26 @@ package tetris;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Properties;
 
 public class RightPanel extends JPanel {
     public String statusString = "status: ";
     public String pointsString = "points: ";
     public ShapePanel shapePanel;
 
+    private JLabel bestResult;
     private JLabel statusBar = new JLabel(statusString + "None");
     private JLabel points = new JLabel("0");
     private final Tetris parent;
 
     public RightPanel(final Tetris parent) {
         this.parent = parent;
-        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0)));
+        setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0), 3));
         setLayout(new BorderLayout());
         add(createStatusPanel(), BorderLayout.NORTH);
         add(createNextShapePanel(), BorderLayout.CENTER);
@@ -34,8 +37,9 @@ public class RightPanel extends JPanel {
         JButton exitButton = new JButton("exit");
         JButton aboutButton = new JButton("about");
 
+        bestResult = getBestResult();
         buttonsPanel.add(new JLabel("Best result: "));
-        buttonsPanel.add(getBestResult());
+        buttonsPanel.add(bestResult);
         buttonsPanel.add(new JLabel(pointsString));
         buttonsPanel.add(points);
         buttonsPanel.add(restartButton);
@@ -45,6 +49,11 @@ public class RightPanel extends JPanel {
         restartButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (statusBar.getText().equals("game over")) {
+                    parent.board.restart();
+                    parent.board.requestFocus(true);
+                    return;
+                }
                 boolean wasPaused = true;
                 if (parent.board.getTimer().isRunning()) {
                     parent.board.pause();
@@ -103,17 +112,62 @@ public class RightPanel extends JPanel {
             }
         });
 
+        JLabel test = new JLabel("ololo");
+        buttonsPanel.add(test);
+        test.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                JOptionPane.showMessageDialog(null,
+                        "Malashenkov Anton",
+                        "ABOUT AUTHOR",
+                        JOptionPane.INFORMATION_MESSAGE);
+                parent.board.requestFocus(true);
+            }
+        });
         return buttonsPanel;
     }
 
-    private JLabel getBestResult() {
-        return new JLabel("DashKa: 2121 points");
+    public JLabel getBestResult() {
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream("best_result.txt"), "UTF-8"));
+        } catch (IOException e) {
+            System.out.println("[ERROR] error get properties");
+        }
+        int res;
+        String name;
+        try {
+            name = properties.getProperty("name", "Unknown");
+            res = Integer.parseInt(properties.getProperty("points", "Unknown"));
+        } catch (Exception ignored) {
+            return new JLabel("Unknown");
+        }
+        return new JLabel(name + ": " + String.valueOf(res));
+    }
+
+    public void updateBestResult() {
+        this.bestResult.setText(getBestResult().getText());
+        System.out.println(this.bestResult.getText());
     }
 
     private Component createNextShapePanel() {
         shapePanel = new ShapePanel();
         shapePanel.setShape(parent.board.nextShape);
-        return shapePanel;
+
+        JPanel mainPanel = new JPanel(new GridLayout(3, 3, 0, 0));
+        mainPanel.setOpaque(false);
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(shapePanel);
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+        mainPanel.add(new JLabel(""));
+
+        return mainPanel;
     }
 
     private Component createStatusPanel() {

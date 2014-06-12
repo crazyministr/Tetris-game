@@ -3,11 +3,16 @@ package tetris;
 import tetris.Shape.Tetrominoes;
 
 import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.*;
+import java.util.Properties;
 
 public class Board extends JPanel implements ActionListener {
     public static final int BOARD_WIDTH = 15;
@@ -59,12 +64,10 @@ public class Board extends JPanel implements ActionListener {
     }
 
     int cellWidth() {
-        System.out.println("width: " + getSize().getWidth());
         return (int) getSize().getWidth() / BOARD_WIDTH;
     }
 
     int cellHeight() {
-        System.out.println("height: " + getSize().getHeight());
         return (int) getSize().getHeight() / BOARD_HEIGHT;
     }
 
@@ -84,7 +87,7 @@ public class Board extends JPanel implements ActionListener {
         statusBar.setText("started");
 
         initBoard();
-        timer = new Timer(400, this);
+        timer = new Timer(700, this);
         timer.start();
         tryMove(currentShape, currentX, currentY);
     }
@@ -163,19 +166,45 @@ public class Board extends JPanel implements ActionListener {
             timer.stop();
             isStarted = false;
             statusBar.setText("game over");
-            String res = JOptionPane.showInputDialog(null,
-                    "Enter your name",
-                    "GAME OVER",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (res != null) {
-                saveNewRecord(res, points.getText());
-            }
+            saveNewResult();
         }
     }
 
-    private void saveNewRecord(String name, String points) {
-        System.out.println("SAVE: " + name + " " + points);
-        // TODO: save to file records/records.txt
+    private void saveNewResult() {
+        Properties properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream("best_result.txt"), "UTF-8"));
+        } catch (IOException e) {
+            System.out.println("[ERROR] error get properties");
+        }
+        int oldPoints = Integer.parseInt(properties.getProperty("points"));
+        if (oldPoints >= Integer.parseInt(points.getText())) {
+            JOptionPane.showMessageDialog(null,
+                    "Your score is not the best",
+                    "GAME OVER",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        JTextField tf = new JTextField(new CharLimitDocument(13), "", 0);
+        Object[] msg = {
+                "Your score is the best\nEnter your name to save", tf
+        };
+        int res = JOptionPane.showConfirmDialog(null,
+                msg,
+                "Congratulations!",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (res == JOptionPane.CANCEL_OPTION || tf.getText().equals("")) {
+            return;
+        }
+        properties.setProperty("name", tf.getText());
+        properties.setProperty("points", points.getText());
+        try {
+            properties.store(new BufferedWriter(new OutputStreamWriter(new FileOutputStream("best_result.txt"), "UTF-8")), null);
+        } catch (IOException e) {
+            System.out.println("[ERROR] error save new result");
+        }
+        parent.rightPanel.updateBestResult();
     }
 
     private boolean tryMove(Shape newShape, int newX, int newY) {
@@ -197,7 +226,7 @@ public class Board extends JPanel implements ActionListener {
     }
 
     private void removeFullLines() {
-        int numFullLines = 0;
+        int cntFullLines = 0;
         for (int i = BOARD_HEIGHT - 1; i >= 0; --i) {
             boolean lineIsFull = true;
             for (int j = 0; j < BOARD_WIDTH; j++) {
@@ -207,7 +236,7 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
             if (lineIsFull) {
-                ++numFullLines;
+                ++cntFullLines;
                 for (int k = i; k < BOARD_HEIGHT - 1; k++) {
                     for (int j = 0; j < BOARD_WIDTH; j++) {
                         board[(k * BOARD_WIDTH) + j] = shapeAt(j, k + 1);
@@ -215,9 +244,9 @@ public class Board extends JPanel implements ActionListener {
                 }
             }
         }
-        if (numFullLines > 0) {
+        if (cntFullLines > 0) {
             isFallingFinished = true;
-            cntRemovedLines += numFullLines;
+            cntRemovedLines += cntFullLines + cntFullLines - 1;
             currentShape.setShape(Tetrominoes.EmptyShape);
             points.setText(String.valueOf(cntRemovedLines));
             repaint();
@@ -263,7 +292,7 @@ public class Board extends JPanel implements ActionListener {
         g.drawLine(x + cellWidth() - 1, y + cellHeight() - 1, x + cellWidth() - 1, y + 1);
     }
 
-    class TAdapter extends KeyAdapter {
+    private class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
             if (!isStarted || currentShape.getShapeName() == Tetrominoes.EmptyShape) {
                 System.out.println("KeyAdapter: " + isStarted + " " + currentShape.getShapeName());
@@ -293,6 +322,23 @@ public class Board extends JPanel implements ActionListener {
                 case KeyEvent.VK_SPACE:
                     dropDown();
                     break;
+            }
+        }
+    }
+
+    private class CharLimitDocument extends PlainDocument {
+        private int limit;
+
+        public CharLimitDocument(int limit) {
+            super();
+            this.limit = limit;
+        }
+
+        public void insertString( int offset, String  str, AttributeSet attr ) throws BadLocationException {
+            if (str == null) return;
+
+            if ((getLength() + str.length()) <= limit) {
+                super.insertString(offset, str, attr);
             }
         }
     }

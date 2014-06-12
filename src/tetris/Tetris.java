@@ -12,7 +12,7 @@ public class Tetris extends JFrame {
     private String msg = "p(P) - pause\nSpace - shape drop down\nololo atata";
 
     public Tetris() {
-        JOptionPane.showMessageDialog(null, msg, "HOW TO PLAY", JOptionPane.INFORMATION_MESSAGE);
+//        JOptionPane.showMessageDialog(null, msg, "HOW TO PLAY", JOptionPane.INFORMATION_MESSAGE);
         setLayout(new GridLayout(1, 2, 0, 0));
         board = new Board(this);
         rightPanel = new RightPanel(this);

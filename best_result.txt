@@ -1,1 +1,3 @@
-DashKa 2121
+#Thu Jun 12 16:38:52 MSK 2014
+name=123
+points=-1
