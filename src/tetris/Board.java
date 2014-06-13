@@ -15,6 +15,8 @@ import java.io.*;
 import java.util.Properties;
 
 public class Board extends JPanel implements ActionListener {
+    private final int MAX_LENGTH_NAME = 13;
+
     public static final int BOARD_WIDTH = 15;
     public static final int BOARD_HEIGHT = 25;
 
@@ -182,11 +184,12 @@ public class Board extends JPanel implements ActionListener {
             JOptionPane.showMessageDialog(null,
                     "Your score is not the best",
                     "GAME OVER",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.INFORMATION_MESSAGE,
+                    new ImageIcon("images/game_over.jpg"));
             return;
         }
 
-        JTextField tf = new JTextField(new CharLimitDocument(13), "", 0);
+        JTextField tf = new JTextField(new CharLimitDocument(MAX_LENGTH_NAME), "", 0);
         Object[] msg = {
                 "Your score is the best\nEnter your name to save", tf
         };

@@ -55,6 +55,9 @@ public class ShapePanel extends JPanel {
         for (int i = 0; i < BOARD_HEIGHT; i++) {
             for (int j = 0; j < BOARD_WIDTH; j++) {
                 Tetrominoes shape = shapeAt(j, BOARD_HEIGHT - i - 1);
+//                if (shape == Tetrominoes.EmptyShape) {
+//                    continue;
+//                }
                 drawSquare(g,
                            j * cellWidth(),
                            boardTop + i * cellHeight(),

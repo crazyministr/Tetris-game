@@ -29,22 +29,56 @@ public class RightPanel extends JPanel {
         add(createButtonsPanel(), BorderLayout.SOUTH);
     }
 
+    private Component aboutAuthorLink() {
+        JLabel aboutAuthor = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">about author</font></html>");
+
+//        aboutAuthor.setFont(new Font("Arial", Font.ITALIC, 13));
+        aboutAuthor.setHorizontalAlignment(JLabel.RIGHT);
+        aboutAuthor.setVerticalAlignment(JLabel.BOTTOM);
+        aboutAuthor.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        aboutAuthor.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                JOptionPane.showMessageDialog(null,
+                        "Malashenkov Anton",
+                        "ABOUT AUTHOR",
+                        JOptionPane.INFORMATION_MESSAGE);
+                parent.board.requestFocus(true);
+            }
+        });
+        return aboutAuthor;
+    }
+
     private Component createButtonsPanel() {
-        JPanel buttonsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+        mainPanel.setOpaque(false);
+
+        JPanel buttonsPanel = new JPanel();
+        mainPanel.add(buttonsPanel);
+        mainPanel.add(aboutAuthorLink());
+
         buttonsPanel.setOpaque(false);
+        buttonsPanel.setLayout(new GridLayout(4, 2, 10, 3));
 
         JButton restartButton = new JButton("restart");
         JButton exitButton = new JButton("exit");
-        JButton aboutButton = new JButton("about");
 
         bestResult = getBestResult();
-        buttonsPanel.add(new JLabel("Best result: "));
+
+        JLabel bestResultLabel = new JLabel("best score: ");
+        JLabel pointsLabel = new JLabel("current points: ");
+
+        bestResultLabel.setHorizontalAlignment(JLabel.RIGHT);
+        pointsLabel.setHorizontalAlignment(JLabel.RIGHT);
+
+        buttonsPanel.add(bestResultLabel);
         buttonsPanel.add(bestResult);
-        buttonsPanel.add(new JLabel(pointsString));
+        buttonsPanel.add(pointsLabel);
         buttonsPanel.add(points);
         buttonsPanel.add(restartButton);
         buttonsPanel.add(exitButton);
-        buttonsPanel.add(aboutButton);
 
         restartButton.addActionListener(new ActionListener() {
             @Override
@@ -101,31 +135,7 @@ public class RightPanel extends JPanel {
             }
         });
 
-        aboutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,
-                        "Malashenkov Anton",
-                        "ABOUT AUTHOR",
-                        JOptionPane.INFORMATION_MESSAGE);
-                parent.board.requestFocus(true);
-            }
-        });
-
-        JLabel test = new JLabel("ololo");
-        buttonsPanel.add(test);
-        test.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                JOptionPane.showMessageDialog(null,
-                        "Malashenkov Anton",
-                        "ABOUT AUTHOR",
-                        JOptionPane.INFORMATION_MESSAGE);
-                parent.board.requestFocus(true);
-            }
-        });
-        return buttonsPanel;
+        return mainPanel;
     }
 
     public JLabel getBestResult() {
@@ -143,7 +153,7 @@ public class RightPanel extends JPanel {
         } catch (Exception ignored) {
             return new JLabel("Unknown");
         }
-        return new JLabel(name + ": " + String.valueOf(res));
+        return new JLabel(name + " (" + String.valueOf(res) + ")");
     }
 
     public void updateBestResult() {
