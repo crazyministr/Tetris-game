@@ -18,6 +18,7 @@ public class RightPanel extends JPanel {
     private JLabel bestResult;
     private JLabel statusBar = new JLabel(statusString + "None");
     private JLabel points = new JLabel("0");
+    private JLabel level = new JLabel("1");
     private final Tetris parent;
 
     public RightPanel(final Tetris parent) {
@@ -30,13 +31,12 @@ public class RightPanel extends JPanel {
     }
 
     private Component aboutAuthorLink() {
-        JLabel aboutAuthor = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">about author</font></html>");
+        JLabel aboutAuthorLabel = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">about author</font></html>");
 
-//        aboutAuthor.setFont(new Font("Arial", Font.ITALIC, 13));
-        aboutAuthor.setHorizontalAlignment(JLabel.RIGHT);
-        aboutAuthor.setVerticalAlignment(JLabel.BOTTOM);
-        aboutAuthor.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        aboutAuthor.addMouseListener(new MouseAdapter() {
+        aboutAuthorLabel.setHorizontalAlignment(JLabel.RIGHT);
+        aboutAuthorLabel.setVerticalAlignment(JLabel.BOTTOM);
+        aboutAuthorLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        aboutAuthorLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
@@ -47,7 +47,26 @@ public class RightPanel extends JPanel {
                 parent.board.requestFocus(true);
             }
         });
-        return aboutAuthor;
+        return aboutAuthorLabel;
+    }
+
+    private Component howToPlayLink() {
+        JLabel howToPlayLabel = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">how to play</font></html>");
+        howToPlayLabel.setHorizontalAlignment(JLabel.RIGHT);
+        howToPlayLabel.setVerticalAlignment(JLabel.BOTTOM);
+        howToPlayLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        howToPlayLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                JOptionPane.showMessageDialog(null,
+                        "nothing",
+                        "HOW TO PLAY",
+                        JOptionPane.INFORMATION_MESSAGE);
+                parent.board.requestFocus(true);
+            }
+        });
+        return howToPlayLabel;
     }
 
     private Component createButtonsPanel() {
@@ -57,26 +76,31 @@ public class RightPanel extends JPanel {
 
         JPanel buttonsPanel = new JPanel();
         mainPanel.add(buttonsPanel);
+        mainPanel.add(howToPlayLink());
         mainPanel.add(aboutAuthorLink());
 
         buttonsPanel.setOpaque(false);
-        buttonsPanel.setLayout(new GridLayout(4, 2, 10, 3));
+        buttonsPanel.setLayout(new GridLayout(5, 2, 10, 3));
 
-        JButton restartButton = new JButton("restart");
+        JButton restartButton = new JButton("new game");
         JButton exitButton = new JButton("exit");
 
         bestResult = getBestResult();
 
         JLabel bestResultLabel = new JLabel("best score: ");
         JLabel pointsLabel = new JLabel("current points: ");
+        JLabel levelLabel = new JLabel("level: ");
 
         bestResultLabel.setHorizontalAlignment(JLabel.RIGHT);
         pointsLabel.setHorizontalAlignment(JLabel.RIGHT);
+        levelLabel.setHorizontalAlignment(JLabel.RIGHT);
 
-        buttonsPanel.add(bestResultLabel);
-        buttonsPanel.add(bestResult);
+        buttonsPanel.add(levelLabel);
+        buttonsPanel.add(level);
         buttonsPanel.add(pointsLabel);
         buttonsPanel.add(points);
+        buttonsPanel.add(bestResultLabel);
+        buttonsPanel.add(bestResult);
         buttonsPanel.add(restartButton);
         buttonsPanel.add(exitButton);
 
@@ -94,8 +118,8 @@ public class RightPanel extends JPanel {
                     wasPaused = false;
                 }
                 int res = JOptionPane.showConfirmDialog(null,
-                      "Are you sure to restart ?",
-                      "RESTART",
+                      "Are you sure to start new game ?",
+                      "NEW GAME",
                       JOptionPane.YES_NO_OPTION,
                       JOptionPane.QUESTION_MESSAGE);
                 if (res == JOptionPane.NO_OPTION) {
@@ -153,7 +177,7 @@ public class RightPanel extends JPanel {
         } catch (Exception ignored) {
             return new JLabel("Unknown");
         }
-        return new JLabel(name + " (" + String.valueOf(res) + ")");
+        return new JLabel(String.valueOf(res) + " (" + name + ")");
     }
 
     public void updateBestResult() {
@@ -194,6 +218,10 @@ public class RightPanel extends JPanel {
 
     public JLabel getPoints() {
         return points;
+    }
+
+    public JLabel getLevel() {
+        return level;
     }
 
     public void paintComponent(Graphics g) {

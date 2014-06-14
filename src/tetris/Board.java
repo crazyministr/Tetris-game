@@ -15,7 +15,10 @@ import java.io.*;
 import java.util.Properties;
 
 public class Board extends JPanel implements ActionListener {
+    private final int START_TIMEOUT = 700;
+    private final int INDENT_TIMEOUT = 100;
     private final int MAX_LENGTH_NAME = 13;
+    private final int POINTS_FOR_NEXT_LEVEL = 15;
 
     public static final int BOARD_WIDTH = 15;
     public static final int BOARD_HEIGHT = 25;
@@ -24,16 +27,19 @@ public class Board extends JPanel implements ActionListener {
     public Shape nextShape;
 
     private Timer timer;
+    private JLabel level;
     private JLabel points;
     private int currentX = 0;
     private int currentY = 0;
     private JLabel statusBar;
     private final Tetris parent;
     private Tetrominoes[] board;
-    private int cntRemovedLines = 0;
+    private int countPoints = 0;
     private boolean isPaused = false;
     private boolean isStarted = false;
     private boolean isFallingFinished = false;
+
+    private int currentTimeout = START_TIMEOUT;
 
     public Board(Tetris parent) {
         this.parent = parent;
@@ -81,15 +87,17 @@ public class Board extends JPanel implements ActionListener {
         isStarted = true;
         isPaused = false;
         isFallingFinished = false;
-        cntRemovedLines = 0;
+        countPoints = 0;
 
+        level = parent.rightPanel.getLevel();
         points = parent.rightPanel.getPoints();
         statusBar = parent.rightPanel.getStatusBar();
         points.setText("0");
         statusBar.setText("started");
 
         initBoard();
-        timer = new Timer(700, this);
+        currentTimeout = START_TIMEOUT;
+        timer = new Timer(currentTimeout, this);
         timer.start();
         tryMove(currentShape, currentX, currentY);
     }
@@ -249,9 +257,17 @@ public class Board extends JPanel implements ActionListener {
         }
         if (cntFullLines > 0) {
             isFallingFinished = true;
-            cntRemovedLines += cntFullLines + cntFullLines - 1;
+            int newPoints = countPoints + cntFullLines + cntFullLines - 1;
+            if (newPoints / POINTS_FOR_NEXT_LEVEL > countPoints / POINTS_FOR_NEXT_LEVEL) {
+                level.setText(String.valueOf(Integer.parseInt(level.getText()) + 1));
+                if (currentTimeout > INDENT_TIMEOUT) {
+                    currentTimeout -= INDENT_TIMEOUT;
+                }
+                timer.setDelay(currentTimeout);
+            }
+            countPoints += cntFullLines + cntFullLines - 1;
             currentShape.setShape(Tetrominoes.EmptyShape);
-            points.setText(String.valueOf(cntRemovedLines));
+            points.setText(String.valueOf(countPoints));
             repaint();
         }
     }
