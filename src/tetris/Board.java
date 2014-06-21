@@ -18,7 +18,7 @@ public class Board extends JPanel implements ActionListener {
     private final int START_TIMEOUT = 700;
     private final int INDENT_TIMEOUT = 100;
     private final int MAX_LENGTH_NAME = 13;
-    private final int POINTS_FOR_NEXT_LEVEL = 15;
+    private final int POINTS_FOR_NEXT_LEVEL = 13;
 
     public static final int BOARD_WIDTH = 15;
     public static final int BOARD_HEIGHT = 25;
@@ -57,10 +57,6 @@ public class Board extends JPanel implements ActionListener {
         board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
     }
 
-    public Timer getTimer() {
-        return timer;
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         if (isFallingFinished) {
@@ -81,6 +77,10 @@ public class Board extends JPanel implements ActionListener {
 
     Tetrominoes shapeAt(int x, int y) {
         return board[(y * BOARD_WIDTH) + x];
+    }
+
+    public Timer getTimer() {
+        return timer;
     }
 
     public void start() {

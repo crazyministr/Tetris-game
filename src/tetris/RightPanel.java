@@ -11,12 +11,10 @@ import java.io.InputStreamReader;
 import java.util.Properties;
 
 public class RightPanel extends JPanel {
-    public String statusString = "status: ";
-    public String pointsString = "points: ";
     public ShapePanel shapePanel;
 
     private JLabel bestResult;
-    private JLabel statusBar = new JLabel(statusString + "None");
+    private JLabel statusBar = new JLabel("None");
     private JLabel points = new JLabel("0");
     private JLabel level = new JLabel("1");
     private final Tetris parent;
@@ -207,7 +205,7 @@ public class RightPanel extends JPanel {
     private Component createStatusPanel() {
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         statusPanel.setOpaque(false);
-        statusPanel.add(new JLabel(statusString));
+        statusPanel.add(new JLabel("status: "));
         statusPanel.add(statusBar);
         return statusPanel;
     }
