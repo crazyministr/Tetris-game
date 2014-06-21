@@ -58,7 +58,12 @@ public class RightPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 JOptionPane.showMessageDialog(null,
-                        "nothing",
+                            "p/P - pause\n" +
+                            "space - drop down\n" +
+                            "up - rotate shape\n" +
+                            "down - accelerated descent\n" +
+                            "left - move shape to left\n" +
+                            "right - move shape to right",
                         "HOW TO PLAY",
                         JOptionPane.INFORMATION_MESSAGE);
                 parent.board.requestFocus(true);

@@ -15,10 +15,10 @@ import java.io.*;
 import java.util.Properties;
 
 public class Board extends JPanel implements ActionListener {
-    private final int START_TIMEOUT = 700;
-    private final int INDENT_TIMEOUT = 100;
-    private final int MAX_LENGTH_NAME = 13;
-    private final int POINTS_FOR_NEXT_LEVEL = 13;
+    private static final int START_TIMEOUT = 700;
+    private static final int INDENT_TIMEOUT = 100;
+    private static final int MAX_LENGTH_NAME = 13;
+    private static final int POINTS_FOR_NEXT_LEVEL = 13;
 
     public static final int BOARD_WIDTH = 15;
     public static final int BOARD_HEIGHT = 25;
