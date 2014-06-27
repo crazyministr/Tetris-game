@@ -15,6 +15,7 @@ import java.util.Properties;
  * 1. status game (started, paused, game over)
  * 2. <code>ShapePanel</code> with next shape
  * 3. panel with information about level, points, best result, about author, how to play and buttons (new game and exit)
+ * @see tetris.ShapePanel
  */
 public class RightPanel extends JPanel {
     public ShapePanel shapePanel;
@@ -34,6 +35,10 @@ public class RightPanel extends JPanel {
         add(createButtonsPanel(), BorderLayout.SOUTH);
     }
 
+    /**
+     * create <code>Component</code> with information about author
+     * @return Component
+     */
     private Component aboutAuthorLink() {
         JLabel aboutAuthorLabel = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">about author</font></html>");
 
@@ -64,6 +69,10 @@ public class RightPanel extends JPanel {
         return aboutAuthorLabel;
     }
 
+    /**
+     * create <code>Component</code> with information about "how to play"
+     * @return Component
+     */
     private Component howToPlayLink() {
         JLabel howToPlayLabel = new JLabel("<html><font style=\"color: blue; text-decoration: underline;\">how to play</font></html>");
         howToPlayLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -96,6 +105,10 @@ public class RightPanel extends JPanel {
         return howToPlayLabel;
     }
 
+    /**
+     * create Component with information and buttons
+     * @return Component
+     */
     private Component createButtonsPanel() {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
@@ -189,6 +202,10 @@ public class RightPanel extends JPanel {
         return mainPanel;
     }
 
+    /**
+     * load properties and return best result
+     * @return best result
+     */
     public JLabel getBestResult() {
         Properties properties = new Properties();
         try {
@@ -207,11 +224,19 @@ public class RightPanel extends JPanel {
         return new JLabel(String.valueOf(res) + " (" + name + ")");
     }
 
+    /**
+     * set new result
+     */
     public void updateBestResult() {
         this.bestResult.setText(getBestResult().getText());
         System.out.println(this.bestResult.getText());
     }
 
+    /**
+     * create panel with new shape
+     * @see tetris.ShapePanel
+     * @return Component
+     */
     private Component createNextShapePanel() {
         shapePanel = new ShapePanel();
         shapePanel.setShape(parent.board.nextShape);
@@ -231,6 +256,10 @@ public class RightPanel extends JPanel {
         return mainPanel;
     }
 
+    /**
+     * panel with status information
+     * @return Component
+     */
     private Component createStatusPanel() {
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         statusPanel.setOpaque(false);
@@ -239,18 +268,34 @@ public class RightPanel extends JPanel {
         return statusPanel;
     }
 
+    /**
+     *
+     * @return status bar
+     */
     public JLabel getStatusBar() {
         return statusBar;
     }
 
+    /**
+     *
+     * @return points
+     */
     public JLabel getPoints() {
         return points;
     }
 
+    /**
+     *
+     * @return level
+     */
     public JLabel getLevel() {
         return level;
     }
 
+    /**
+     * paint background image for this class
+     * @param g
+     */
     public void paintComponent(Graphics g) {
         try {
             Image backgroundImage = ImageIO.read(new File("images/right_panel_background_image.jpg"));
