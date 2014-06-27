@@ -38,10 +38,20 @@ public class RightPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
+                boolean wasPaused = true;
+                if (parent.board.getTimer().isRunning()) {
+                    parent.board.pause();
+                    wasPaused = false;
+                }
                 JOptionPane.showMessageDialog(null,
-                        "Malashenkov Anton",
+                        "name: Malashenkov Anton aka CrazyMinistr\n" +
+                                "group: 2743\n" +
+                                "mail: malashenkov@rain.ifmo.ru",
                         "ABOUT AUTHOR",
                         JOptionPane.INFORMATION_MESSAGE);
+                if (!wasPaused) {
+                    parent.board.pause();
+                }
                 parent.board.requestFocus(true);
             }
         });
@@ -57,6 +67,11 @@ public class RightPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
+                boolean wasPaused = true;
+                if (parent.board.getTimer().isRunning()) {
+                    parent.board.pause();
+                    wasPaused = false;
+                }
                 JOptionPane.showMessageDialog(null,
                             "p/P - pause\n" +
                             "space - drop down\n" +
@@ -66,6 +81,9 @@ public class RightPanel extends JPanel {
                             "right - move shape to right",
                         "HOW TO PLAY",
                         JOptionPane.INFORMATION_MESSAGE);
+                if (!wasPaused) {
+                    parent.board.pause();
+                }
                 parent.board.requestFocus(true);
             }
         });
