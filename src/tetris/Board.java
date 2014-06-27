@@ -14,13 +14,26 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.Properties;
 
+/**
+ * Class <code>Board</code> draw all field with shapes and repaint him every time
+ */
 public class Board extends JPanel implements ActionListener {
+    /* timeout on first level */
     private static final int START_TIMEOUT = 700;
+
+    /* every level timeout decreases by <code>INDENT_TIMEOUT</code> */
     private static final int INDENT_TIMEOUT = 100;
+
+    /* max length for winner name */
     private static final int MAX_LENGTH_NAME = 13;
+
+    /* count point for jump to next level */
     private static final int POINTS_FOR_NEXT_LEVEL = 13;
 
+    /* count cells of width */
     public static final int BOARD_WIDTH = 15;
+
+    /* count cells of height */
     public static final int BOARD_HEIGHT = 25;
 
     public Shape currentShape;
@@ -41,6 +54,10 @@ public class Board extends JPanel implements ActionListener {
 
     private int currentTimeout = START_TIMEOUT;
 
+    /**
+     * initialize shapes and board
+     * @param parent class parent
+     */
     public Board(Tetris parent) {
         this.parent = parent;
         setFocusable(true);
@@ -57,6 +74,10 @@ public class Board extends JPanel implements ActionListener {
         board = new Tetrominoes[BOARD_WIDTH * BOARD_HEIGHT];
     }
 
+    /**
+     * processing event every <code>currentTimeout milliseconds</code>
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (isFallingFinished) {
@@ -67,22 +88,43 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     *
+     * @return cells width
+     */
     int cellWidth() {
         return (int) getSize().getWidth() / BOARD_WIDTH;
     }
 
+    /**
+     *
+     * @return cells height
+     */
     int cellHeight() {
         return (int) getSize().getHeight() / BOARD_HEIGHT;
     }
 
+    /**
+     * return shape from <code>board[x][y]</code>
+     * @param x <code>X</code> coordinates board[x][y]
+     * @param y <code>Y</code> coordinates board[x][y]
+     * @return shape
+     */
     Tetrominoes shapeAt(int x, int y) {
         return board[(y * BOARD_WIDTH) + x];
     }
 
+    /**
+     *
+     * @return timer
+     */
     public Timer getTimer() {
         return timer;
     }
 
+    /**
+     * initialize all for start and start timer
+     */
     public void start() {
         isStarted = true;
         isPaused = false;
@@ -102,6 +144,9 @@ public class Board extends JPanel implements ActionListener {
         tryMove(currentShape, currentX, currentY);
     }
 
+    /**
+     * initialize board (call <code>initBoard()</code>) and call <code>start()</code>
+     */
     public void restart() {
         timer.stop();
         initBoard();
@@ -110,6 +155,9 @@ public class Board extends JPanel implements ActionListener {
         start();
     }
 
+    /**
+     * set timer in pause
+     */
     public void pause() {
         if (!isStarted) {
             return;
@@ -125,6 +173,9 @@ public class Board extends JPanel implements ActionListener {
         repaint();
     }
 
+    /**
+     * drop shape down
+     */
     private void dropDown() {
         int newY = currentY;
         while (newY > 0) {
@@ -136,18 +187,27 @@ public class Board extends JPanel implements ActionListener {
         shapeDropped();
     }
 
+    /**
+     * drop shape on one line down
+     */
     private void oneLineDown() {
         if (!tryMove(currentShape, currentX, currentY - 1)) {
             shapeDropped();
         }
     }
 
+    /**
+     * initialize board
+     */
     public void initBoard() {
         for (int i = 0; i < BOARD_HEIGHT * BOARD_WIDTH; i++) {
             board[i] = Tetrominoes.EmptyShape;
         }
     }
 
+    /**
+     * update <code>board[][]</code> after shape drop down
+     */
     private void shapeDropped() {
         for (int i = 0; i < 4; i++) {
             int x = currentX + currentShape.getX(i);
@@ -160,6 +220,9 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * generate new shape after shape drop down
+     */
     private void newShapes() {
         if (nextShape == null) {
             nextShape = new Shape();
@@ -180,6 +243,10 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * calling when status game is game over
+     * Save new result in <code>best_result.txt</code> if old result is worse
+     */
     private void saveNewResult() {
         Properties properties = new Properties();
         try {
@@ -218,6 +285,13 @@ public class Board extends JPanel implements ActionListener {
         parent.rightPanel.updateBestResult();
     }
 
+    /**
+     * try make move to one line down
+     * @param newShape potential new shape
+     * @param newX potential new <code>X</code> coordinates of shape
+     * @param newY potential new <code>Y</code> coordinates of shape
+     * @return true if can move down else false
+     */
     private boolean tryMove(Shape newShape, int newX, int newY) {
         for (int i = 0; i < 4; i++) {
             int x = newX + newShape.getX(i);
@@ -236,6 +310,10 @@ public class Board extends JPanel implements ActionListener {
         return true;
     }
 
+    /**
+     * Find full line and remove their.
+     * If removes <code>X</code> lines then add <code>X * 2 - 1</code> point
+     */
     private void removeFullLines() {
         int cntFullLines = 0;
         for (int i = BOARD_HEIGHT - 1; i >= 0; --i) {
@@ -272,6 +350,10 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * paint new position shape
+     * @param g
+     */
     public void paint(Graphics g) {
         super.paint(g);
         Dimension size = getSize();
@@ -298,6 +380,13 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * paint part of shape in <code>(X;Y)</code> coordinates with color <code>color</code>
+     * @param g
+     * @param x <code>X</code> coordinates for paint
+     * @param y <code>Y</code> coordinates for paint
+     * @param color color for this part
+     */
     public void drawSquare(Graphics g, int x, int y, Color color) {
         g.setColor(color);
         g.fillRect(x + 1, y + 1, cellWidth() - 2, cellHeight() - 2);
@@ -311,6 +400,9 @@ public class Board extends JPanel implements ActionListener {
         g.drawLine(x + cellWidth() - 1, y + cellHeight() - 1, x + cellWidth() - 1, y + 1);
     }
 
+    /**
+     * Listener for keyboard
+     */
     private class TAdapter extends KeyAdapter {
         public void keyPressed(KeyEvent e) {
             if (!isStarted || currentShape.getShapeName() == Tetrominoes.EmptyShape) {
@@ -345,6 +437,9 @@ public class Board extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Class helps for limits winner name <code>JTextField</code>
+     */
     private class CharLimitDocument extends PlainDocument {
         private int limit;
 
@@ -353,10 +448,11 @@ public class Board extends JPanel implements ActionListener {
             this.limit = limit;
         }
 
-        public void insertString( int offset, String  str, AttributeSet attr ) throws BadLocationException {
-            if (str == null) return;
-
-            if ((getLength() + str.length()) <= limit) {
+        public void insertString(int offset, String  str, AttributeSet attr) throws BadLocationException {
+            if (str == null) {
+                return;
+            }
+            if (getLength() + str.length() <= limit) {
                 super.insertString(offset, str, attr);
             }
         }

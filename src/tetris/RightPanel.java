@@ -10,6 +10,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
+/**
+ * Class <code>RightPanel</code> contains
+ * 1. status game (started, paused, game over)
+ * 2. <code>ShapePanel</code> with next shape
+ * 3. panel with information about level, points, best result, about author, how to play and buttons (new game and exit)
+ */
 public class RightPanel extends JPanel {
     public ShapePanel shapePanel;
 
